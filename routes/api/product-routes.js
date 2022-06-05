@@ -1,12 +1,11 @@
 const router = require('express').Router();
-const { includes } = require('lodash');
 const { Product, Category, Tag, ProductTag } = require('../../models');
-const { destroy } = require('../../models/Product');
 
 // The `/api/products` endpoint
 // GET /api/products
 router.get('/', (req, res) => {
   Product.findAll({
+    attributes: ['id', 'product_name', 'price', 'stock'],
     include: [
       {
         model: Category,
@@ -14,19 +13,13 @@ router.get('/', (req, res) => {
       },
       {
         model: Tag,
-        attributes: ['tag_name']
+        attributes: ['tag_name'],
+        through: ProductTag,
+        as: 'productTag_tag'
       },
-      {
-        model: Tag,
-        attributes: ['id', 'tag_name'],
-        through: {
-          model: ProductTag,
-          attributes: []},
-          as: 'product_tags',
-      }
     ]
   })
-  .then(dbProductData => res.json(dbProductData))
+  .then(productData => res.json(productData))
   .catch(err => {
     console.log(err);
     res.status(500).json(err);
@@ -47,16 +40,18 @@ router.get('/:id', (req, res) => {
       },
       {
         model: Tag,
-        attributes: ['tag_name']
+        attributes: ['tag_name'],
+        through: ProductTag,
+        as: 'productTag_tag'
       }
     ],
   })
-  .then(dbProductData => {
-    if (!dbProductData) {
+  .then(productData => {
+    if (!productData) {
       res.status(404).json({ message: 'No product found with this id' });
       return;
     }
-    res.json(dbProductData);
+    res.json(productData);
   })
   .catch(err => {
     console.log(err);
@@ -136,12 +131,12 @@ router.delete('/:id', (req, res) => {
         id: req.params.id
       }
     })
-      .then(dbProductData => {
-        if (!dbProductData) {
+      .then(productData => {
+        if (!productData) {
           res.status(404).json({ message: 'No product found with this id' });
           return;
         }
-        res.json(dbProductData);
+        res.json(productData);
       })
       .catch(err => {
         console.log(err);

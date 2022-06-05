@@ -6,12 +6,14 @@ const { Category, Product } = require('../../models');
 // GET /api/category
 router.get('/', (req, res) => {
   Category.findAll({
-    include: {
+    include: [
+      {
       model: Product,
       attributes: ['id', 'product_name', 'price', 'stock', 'category_id']
-    }
+    },
+  ]
   })
-    .then(dbCategoryData => res.json(dbCategoryData))
+    .then(categoryData => res.json(categoryData))
     .catch(err => {
       console.log(err);
       res.status(500).json(err);
@@ -29,12 +31,12 @@ router.get('/:id', (req, res) => {
       attributes: ['id', 'product_name', 'price', 'stock', 'category_id']
     }
   })
-  .then(dbCategoryData => {
-    if (!dbCategoryData) {
-      res.status(404).json({ message: 'No data found for this category'});
+  .then(categoryData => {
+    if (!categoryData) {
+      res.status(404).json({ message: 'No category found for this id'});
       return;
     }
-    res.json(dbCategoryData);
+    res.json(categoryData);
   })
   .catch(err => {
     console.log(err);
@@ -47,7 +49,7 @@ router.post('/', (req, res) => {
   Category.create({
     category_name: req.body.category_name,
   })
-    .then(dbCategoryData => res.json(dbCategoryData))
+    .then(categoryData => res.json(categoryData))
     .catch(err => {
       console.log(err);
       res.status(500).json(err);
@@ -61,12 +63,12 @@ router.put('/:id', (req, res) => {
       id: req.params.id
     }
   })
-    .then(dbCategoryData => {
-      if (!dbCategoryData[0]) {
+    .then(categoryData => {
+      if (!categoryData[0]) {
         res.status(404).json({ message: 'No category found with this id' });
         return;
       }
-      res.json(dbCategoryData);
+      res.json(categoryData);
     })
     .catch(err => {
       console.log(err);
@@ -81,12 +83,12 @@ router.delete('/:id', (req, res) => {
       id: req.params.id
     }
   })
-    .then(dbCategoryData => {
-      if (!dbCategoryData) {
+    .then(categoryData => {
+      if (!categoryData) {
         res.status(404).json({ message: 'No category found with this id' });
         return;
       }
-      res.json(dbCategoryData);
+      res.json(categoryData);
     })
     .catch(err => {
       console.log(err);
