@@ -5,13 +5,17 @@ const { Category, Product } = require('../../models');
 
 // GET /api/category
 router.get('/', (req, res) => {
-  Category.findAll()
+  Category.findAll({
+    include: {
+      model: Product,
+      attributes: ['id', 'product_name', 'price', 'stock', 'category_id']
+    }
+  })
     .then(dbCategoryData => res.json(dbCategoryData))
     .catch(err => {
       console.log(err);
       res.status(500).json(err);
     });
-  // be sure to include its associated Products
 });
 
 // GET /api/category/id
@@ -19,6 +23,10 @@ router.get('/:id', (req, res) => {
   Category.findOne({
     where: {
       id: req.params.id
+    },
+    include: {
+      model: Product,
+      attributes: ['id', 'product_name', 'price', 'stock', 'category_id']
     }
   })
   .then(dbCategoryData => {
@@ -32,7 +40,6 @@ router.get('/:id', (req, res) => {
     console.log(err);
     res.status(500).json(err);
   })
-  // be sure to include its associated Products
 });
 
 // POST /api/category
